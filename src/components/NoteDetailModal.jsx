@@ -101,7 +101,7 @@ export default function NoteDetailModal({
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: '1.5rem',
+        padding: 'clamp(0.5rem, 2vw, 1.5rem)',
         visibility: isPracticeMode ? 'hidden' : 'visible' // Hide when in practice mode
       }}>
         <div 
@@ -109,7 +109,7 @@ export default function NoteDetailModal({
           style={{
             width: '100%',
             maxWidth: '900px',
-            maxHeight: '90vh',
+            maxHeight: '92vh',
             display: 'flex',
             flexDirection: 'column',
             background: 'var(--bg-secondary)',
@@ -122,7 +122,7 @@ export default function NoteDetailModal({
           
           {/* Modal Header */}
           <div style={{
-            padding: '1.5rem',
+            padding: 'clamp(1rem, 2vw, 1.5rem)',
             borderBottom: '1px solid var(--glass-border)',
             display: 'flex',
             alignItems: 'flex-start',
@@ -153,7 +153,7 @@ export default function NoteDetailModal({
 
           {/* Modal Secondary Navigation Bar */}
           <div style={{
-            padding: '0.75rem 1.5rem',
+            padding: '0.75rem clamp(0.75rem, 2vw, 1.5rem)',
             background: 'var(--bg-primary)',
             borderBottom: '1px solid var(--glass-border)',
             display: 'flex',
@@ -241,7 +241,7 @@ export default function NoteDetailModal({
 
           {/* Modal Body Scroll Area */}
           <div style={{
-            padding: '1.75rem',
+            padding: 'clamp(1rem, 2vw, 1.75rem)',
             overflowY: 'auto',
             flex: 1,
             fontSize: `${fontSize}px`,
@@ -319,7 +319,7 @@ export default function NoteDetailModal({
                   </button>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1.25rem' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 280px), 1fr))', gap: '1.25rem' }}>
                   {material.flashcards.map((card, idx) => {
                     const isFlipped = flippedCards[idx];
                     return (
@@ -420,7 +420,7 @@ export default function NoteDetailModal({
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            padding: '2rem',
+            padding: 'clamp(1rem, 3vw, 2rem)',
             position: 'relative'
           }}>
             {/* The Flashcard */}
@@ -430,8 +430,8 @@ export default function NoteDetailModal({
               style={{
                 width: '100%',
                 maxWidth: '700px',
-                minHeight: '400px',
-                padding: '3rem',
+                minHeight: 'min(400px, 60vh)',
+                padding: 'clamp(1.5rem, 4vw, 3rem)',
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'center',
@@ -486,7 +486,7 @@ export default function NoteDetailModal({
                className="btn-icon"
                style={{
                  position: 'absolute',
-                 left: '2rem',
+                 left: 'clamp(0.5rem, 2vw, 2rem)',
                  top: '50%',
                  transform: 'translateY(-50%)',
                  padding: '1rem',
@@ -511,7 +511,7 @@ export default function NoteDetailModal({
                className="btn-icon"
                style={{
                  position: 'absolute',
-                 right: '2rem',
+                 right: 'clamp(0.5rem, 2vw, 2rem)',
                  top: '50%',
                  transform: 'translateY(-50%)',
                  padding: '1rem',

@@ -27,3 +27,7 @@ npm-debug.log*
 *.pdf
 *.pptx
 New folder/
+
+# Temp files and cache
+*.timestamp-*.mjs
+.firebase/

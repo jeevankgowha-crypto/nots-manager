@@ -3,6 +3,8 @@ import {
   getAuth, 
   GoogleAuthProvider, 
   signInWithPopup, 
+  signInWithRedirect,
+  getRedirectResult,
   signOut 
 } from 'firebase/auth';
 
@@ -32,7 +34,48 @@ export const signInWithGoogle = async () => {
     return result.user;
   } catch (error) {
     console.error("Firebase Google Sign-In error:", error);
+    
+    // If popup is blocked or cross-origin iframe blocked, try Redirect auth
+    if (
+      error.code === 'auth/popup-blocked' || 
+      error.code === 'auth/cancelled-popup-request' ||
+      error.code === 'auth/internal-error'
+    ) {
+      console.log("Attempting signInWithRedirect fallback...");
+      try {
+        await signInWithRedirect(auth, googleProvider);
+        return null;
+      } catch (redirectErr) {
+        console.error("Redirect auth error:", redirectErr);
+      }
+    }
+
+    if (error.code === 'auth/internal-error' || error.code === 'auth/operation-not-allowed') {
+      const customErr = new Error('Google Sign-In is not enabled or domain authorized in your Firebase Console. Please verify Firebase Console > Authentication settings.');
+      customErr.code = error.code;
+      throw customErr;
+    }
+    if (error.code === 'auth/unauthorized-domain') {
+      const customErr = new Error(`Domain (${window.location.hostname}) is not authorized in Firebase. Please add BOTH https://mystudyzone.online and https://www.mystudyzone.online in Firebase Console > Authentication > Settings > Authorized domains.`);
+      customErr.code = error.code;
+      throw customErr;
+    }
+    if (error.code === 'auth/popup-closed-by-user') {
+      const customErr = new Error('Sign-in popup was closed before completing authentication.');
+      customErr.code = error.code;
+      throw customErr;
+    }
     throw error;
+  }
+};
+
+export const checkRedirectResult = async () => {
+  try {
+    const result = await getRedirectResult(auth);
+    return result ? result.user : null;
+  } catch (err) {
+    console.error("Error getting redirect result:", err);
+    return null;
   }
 };
 

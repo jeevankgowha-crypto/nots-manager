@@ -106,19 +106,6 @@ export default function AdminPortal({
     'Lab Manual'
   ];
 
-  const handleLoginSubmit = (e) => {
-    e.preventDefault();
-    if (passwordInput === 'admin123' || passwordInput.trim() !== '') {
-      onLoginAdmin();
-      setLoginError('');
-    } else {
-      setLoginError('Invalid Admin Password. Default is admin123');
-    }
-  };
-
-  const handleDemoQuickLogin = () => {
-    onLoginAdmin();
-  };
 
   const handleFileChange = (e) => {
     if (e.target.files && e.target.files[0]) {
@@ -319,7 +306,7 @@ export default function AdminPortal({
       
       {/* Top Banner Stats */}
       <div className="glass-card" style={{
-        padding: '1.75rem 2rem',
+        padding: 'clamp(1rem, 2vw, 1.75rem) clamp(1rem, 2vw, 2rem)',
         marginBottom: '2rem',
         display: 'flex',
         alignItems: 'center',
@@ -329,8 +316,8 @@ export default function AdminPortal({
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           <div style={{
-            width: '52px',
-            height: '52px',
+            width: 'clamp(40px, 8vw, 52px)',
+            height: 'clamp(40px, 8vw, 52px)',
             borderRadius: 'var(--radius-md)',
             background: 'var(--gradient-brand)',
             color: '#ffffff',
@@ -751,7 +738,7 @@ export default function AdminPortal({
       {/* UPLOAD & RICH NOTE CREATOR FORM */}
       {showUploadForm && (
         <div className="glass-card animate-fade-in" style={{ padding: '2rem', marginBottom: '2.5rem', borderColor: 'var(--accent-primary)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem', paddingBottom: '1rem', borderBottom: '1px solid var(--glass-border)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem', paddingBottom: '1rem', borderBottom: '1px solid var(--glass-border)', flexWrap: 'wrap', gap: '0.75rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <UploadCloud size={22} color="var(--accent-primary)" />
               <h3 style={{ fontSize: '1.25rem' }}>Upload Study Material & Create Notes</h3>
@@ -949,7 +936,7 @@ export default function AdminPortal({
       )}
 
       {/* MANAGE MATERIALS TABLE */}
-      <div className="glass-card" style={{ padding: '1.5rem', overflowX: 'auto' }}>
+      <div className="glass-card" style={{ padding: 'clamp(0.75rem, 2vw, 1.5rem)', overflowX: 'auto' }}>
         <h3 style={{ fontSize: '1.2rem', marginBottom: '1rem' }}>Uploaded Study Materials ({materials.length})</h3>
 
         <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.875rem' }}>

@@ -13,8 +13,8 @@ export default function HeroSection({
   return (
     <section className="glass-card animate-fade-in" style={{
       position: 'relative',
-      padding: '3rem 2rem',
-      marginBottom: '2.5rem',
+      padding: 'clamp(1.5rem, 4vw, 3rem) clamp(1rem, 3vw, 2rem)',
+      marginBottom: '2rem',
       overflow: 'hidden',
       textAlign: 'center',
       borderColor: 'rgba(99, 102, 241, 0.2)'
@@ -155,9 +155,9 @@ export default function HeroSection({
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          gap: '2.5rem',
-          marginTop: '2.5rem',
-          paddingTop: '1.5rem',
+          gap: 'clamp(1rem, 3vw, 2.5rem)',
+          marginTop: '2rem',
+          paddingTop: '1.25rem',
           borderTop: '1px solid var(--glass-border)',
           flexWrap: 'wrap'
         }}>

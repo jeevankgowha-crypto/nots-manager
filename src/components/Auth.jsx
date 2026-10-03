@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { supabase, isSupabaseConfigured } from '../supabaseClient';
-import { signInWithGoogle as signInWithFirebaseGoogle, isFirebaseConfigured } from '../firebase';
+import { signInWithGoogle as signInWithFirebaseGoogle, isFirebaseConfigured, checkRedirectResult } from '../firebase';
 import { Lock, Mail, Key, UserPlus, LogIn, AlertCircle } from 'lucide-react';
 
 export default function Auth({ onLoginSuccess }) {
@@ -11,31 +11,60 @@ export default function Auth({ onLoginSuccess }) {
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
 
+  useEffect(() => {
+    const handleRedirectResult = async () => {
+      if (isFirebaseConfigured()) {
+        const user = await checkRedirectResult();
+        if (user && onLoginSuccess) {
+          onLoginSuccess(user);
+        }
+      }
+    };
+    handleRedirectResult();
+  }, [onLoginSuccess]);
+
   const handleGoogleSignIn = async () => {
     setErrorMessage('');
+    setLoading(true);
     
     // Check Firebase configuration first
     if (isFirebaseConfigured()) {
-      setLoading(true);
       try {
         const user = await signInWithFirebaseGoogle();
         if (user && onLoginSuccess) {
           onLoginSuccess(user);
         }
-      } catch (err) {
-        setErrorMessage(err.message || 'Firebase Google authentication failed.');
-      } finally {
         setLoading(false);
+        return;
+      } catch (err) {
+        console.warn('Firebase Google Auth error:', err);
+
+        // Try Supabase Google Auth fallback if Supabase is configured
+        if (typeof isSupabaseConfigured === 'function' && isSupabaseConfigured()) {
+          try {
+            const { error: supaErr } = await supabase.auth.signInWithOAuth({
+              provider: 'google',
+              options: { redirectTo: window.location.origin }
+            });
+            if (!supaErr) return;
+          } catch (e) {
+            console.warn('Supabase fallback error:', e);
+          }
+        }
+
+        setErrorMessage(err.message || 'Firebase Google authentication failed. Make sure Google provider is enabled in Firebase Console.');
+        setLoading(false);
+        return;
       }
-      return;
     }
 
     // Fallback to Supabase Google Auth
-    if (!isSupabaseConfigured) {
+    if (typeof isSupabaseConfigured === 'function' && !isSupabaseConfigured()) {
       setErrorMessage('Authentication credentials missing! Please configure Firebase or Supabase keys in your .env file.');
+      setLoading(false);
       return;
     }
-    setLoading(true);
+
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
@@ -241,7 +270,7 @@ export default function Auth({ onLoginSuccess }) {
           </button>
         </form>
 
-        <div style={{ borderTop: '1px solid var(--glass-border)', paddingTop: '1.25rem', marginTop: '0.5rem', display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+        <div style={{ borderTop: '1px solid var(--glass-border)', paddingTop: '1.25rem', marginTop: '0.5rem' }}>
           <button 
             type="button"
             onClick={() => {
@@ -253,32 +282,6 @@ export default function Auth({ onLoginSuccess }) {
             style={{ width: '100%', fontSize: '0.85rem', justifyContent: 'center' }}
           >
             <span>{isSignUp ? 'Already have an account? Sign In' : 'Need an account? Sign Up'}</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => {
-              if (onLoginSuccess) {
-                onLoginSuccess({ email: 'admin@example.com' });
-              }
-            }}
-            style={{
-              width: '100%',
-              padding: '0.6rem',
-              borderRadius: 'var(--radius-md)',
-              border: '1px dashed var(--accent-primary)',
-              background: 'var(--accent-light)',
-              color: 'var(--accent-primary)',
-              fontSize: '0.825rem',
-              fontWeight: 600,
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '0.4rem'
-            }}
-          >
-            ⚡ Quick Demo Admin Access (Skip Supabase Setup)
           </button>
         </div>
 

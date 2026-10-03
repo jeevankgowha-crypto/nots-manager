@@ -296,3 +296,124 @@ button, input, select, textarea {
   pointer-events: none;
   z-index: 0;
 }
+
+/* ==========================================================================
+   MOBILE HAMBURGER MENU SUPPORT
+   ========================================================================== */
+.mobile-menu-toggle {
+  display: none;
+  padding: 0.5rem;
+  border-radius: var(--radius-md);
+  background: var(--bg-tertiary);
+  color: var(--text-muted);
+  border: 1px solid var(--glass-border);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.mobile-menu-toggle:hover {
+  color: var(--text-main);
+  background: var(--surface-card-hover);
+}
+
+/* ==========================================================================
+   RESPONSIVE BREAKPOINTS
+   ========================================================================== */
+
+/* Tablet & smaller desktops (≤ 1024px) */
+@media (max-width: 1024px) {
+  .main-content {
+    padding: 1.5rem 1rem;
+  }
+}
+
+/* Tablet portrait & large phones (≤ 768px) */
+@media (max-width: 768px) {
+  .mobile-menu-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .navbar-nav {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--surface-card);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--glass-border);
+    padding: 0.75rem 1rem;
+    flex-direction: column;
+    gap: 0.5rem;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    z-index: 99;
+  }
+
+  .navbar-nav.nav-open {
+    display: flex;
+  }
+
+  .navbar-nav .btn {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .navbar-nav.nav-open .mobile-nav-extra {
+    display: flex !important;
+  }
+
+  .navbar-right-actions {
+    display: none !important;
+  }
+
+  .main-content {
+    padding: 1.25rem 0.75rem;
+  }
+
+  .glass-card {
+    border-radius: var(--radius-sm);
+  }
+
+  .btn {
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+  }
+
+  .form-input, .form-select, .form-textarea {
+    padding: 0.65rem 0.85rem;
+    font-size: 0.9rem;
+  }
+}
+
+/* Mobile phones (≤ 480px) */
+@media (max-width: 480px) {
+  .main-content {
+    padding: 1rem 0.5rem;
+  }
+
+  .btn {
+    padding: 0.45rem 0.85rem;
+    font-size: 0.8rem;
+    gap: 0.35rem;
+  }
+
+  .badge {
+    padding: 0.2rem 0.5rem;
+    font-size: 0.7rem;
+  }
+
+  h1 {
+    font-size: 1.75rem !important;
+  }
+
+  h2 {
+    font-size: 1.25rem !important;
+  }
+
+  h3 {
+    font-size: 1.05rem !important;
+  }
+}

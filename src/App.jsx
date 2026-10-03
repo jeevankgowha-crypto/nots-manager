@@ -32,10 +32,7 @@ export default function App() {
   // Auth State (Supabase + Firebase + Demo)
   const [userSession, setUserSession] = useState(null);
   const [firebaseUser, setFirebaseUser] = useState(null);
-  const [demoUser, setDemoUser] = useState(() => {
-    const saved = localStorage.getItem('eduhub_demo_user');
-    return saved ? JSON.parse(saved) : null;
-  });
+
 
   useEffect(() => {
     // Listen for Supabase auth state changes
@@ -58,7 +55,7 @@ export default function App() {
     };
   }, []);
 
-  const currentUser = firebaseUser || userSession?.user || demoUser;
+  const currentUser = firebaseUser || userSession?.user;
   const isAdminLoggedIn = !!currentUser;
 
   // Modal State
@@ -85,11 +82,7 @@ export default function App() {
     setTheme(prev => (prev === 'dark' ? 'light' : 'dark'));
   };
 
-  const handleAdminLogin = (user) => {
-    if (user) {
-      setDemoUser(user);
-      localStorage.setItem('eduhub_demo_user', JSON.stringify(user));
-    }
+  const handleAdminLogin = () => {
     setActiveTab('admin');
   };
 
@@ -98,8 +91,6 @@ export default function App() {
     await supabase.auth.signOut();
     setUserSession(null);
     setFirebaseUser(null);
-    setDemoUser(null);
-    localStorage.removeItem('eduhub_demo_user');
     setActiveTab('browse');
   };
 
@@ -252,7 +243,7 @@ export default function App() {
       <footer style={{
         borderTop: '1px solid var(--glass-border)',
         background: 'var(--surface-card)',
-        padding: '2rem 1.5rem',
+        padding: 'clamp(1rem, 3vw, 2rem) clamp(0.75rem, 2vw, 1.5rem)',
         marginTop: '3rem',
         fontSize: '0.85rem',
         color: 'var(--text-muted)'
@@ -262,9 +253,10 @@ export default function App() {
           margin: '0 auto',
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'space-between',
+          justifyContent: 'center',
           gap: '1rem',
-          flexWrap: 'wrap'
+          flexWrap: 'wrap',
+          textAlign: 'center'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <Server size={16} color="var(--accent-emerald)" />
