@@ -60,7 +60,7 @@ export default function Navbar({
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
               <span style={{ fontFamily: 'Outfit', fontWeight: 800, fontSize: '1.35rem', letterSpacing: '-0.03em' }}>
-                Edu<span style={{ color: 'var(--accent-primary)' }}>Hub</span>
+                My Study<span style={{ color: 'var(--accent-primary)' }}> Zone</span>
               </span>
               <span className="badge badge-notes" style={{ padding: '0.15rem 0.4rem', fontSize: '0.65rem' }}>PRO</span>
             </div>

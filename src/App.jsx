@@ -272,7 +272,7 @@ export default function App() {
           </div>
 
           <div>
-            EduHub © {new Date().getFullYear()} • Built for Students & Educators
+            My Study Zone © {new Date().getFullYear()} • Built for Students & Educators
           </div>
         </div>
       </footer>

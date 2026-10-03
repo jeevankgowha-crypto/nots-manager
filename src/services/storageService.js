@@ -1,10 +1,10 @@
 // ==========================================================================
-// EDUHUB STORAGE & INDEXEDDB SERVICE
+// MY STUDY ZONE STORAGE & INDEXEDDB SERVICE
 // Provides persistent client-side data management for study materials,
 // PDF binary uploads, pre-loaded sample notes, and student bookmarks.
 // ==========================================================================
 
-const DB_NAME = 'EduHubNotesDB';
+const DB_NAME = 'MyStudyZoneDB';
 const DB_VERSION = 1;
 const STORE_MATERIALS = 'materials';
 const STORE_FILES = 'uploadedFiles';
@@ -399,7 +399,7 @@ function triggerBlobDownload(blobUrl, fileName) {
 }
 
 function generateTextDownload(material) {
-  const fileText = `EDUHUB STUDY MATERIAL
+  const fileText = `MY STUDY ZONE STUDY MATERIAL
 ------------------------------------------------
 Title: ${material.title}
 Subject: ${material.subject}
@@ -415,7 +415,7 @@ CONTENT / NOTES:
 ${material.content}
 
 ------------------------------------------------
-Downloaded from EduHub Portal
+Downloaded from My Study Zone Portal
 `;
 
   const blob = new Blob([fileText], { type: 'text/plain;charset=utf-8' });
