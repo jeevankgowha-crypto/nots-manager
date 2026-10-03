@@ -22,28 +22,11 @@ export default function HeroSection({
       <div className="hero-glow" />
       
       <div style={{ position: 'relative', zIndex: 1, maxWidth: '800px', margin: '0 auto' }}>
-        <div style={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: '0.5rem',
-          padding: '0.35rem 1rem',
-          borderRadius: 'var(--radius-full)',
-          background: 'var(--accent-light)',
-          border: '1px solid rgba(99, 102, 241, 0.3)',
-          color: 'var(--accent-primary)',
-          fontSize: '0.85rem',
-          fontWeight: 600,
-          marginBottom: '1.25rem'
-        }}>
-          <Sparkles size={16} />
-          <span>Centralized Notes & Study Material Repository</span>
-        </div>
-
         <h1 style={{
           fontSize: 'clamp(2rem, 5vw, 3.25rem)',
           fontWeight: 800,
           lineHeight: 1.15,
-          marginBottom: '1rem'
+          marginBottom: '1.5rem'
         }}>
           Ace Your Exams with <span style={{
             background: 'var(--gradient-brand)',
@@ -51,16 +34,6 @@ export default function HeroSection({
             WebkitTextFillColor: 'transparent'
           }}>Verified Notes</span> & Resources
         </h1>
-
-        <p style={{
-          color: 'var(--text-muted)',
-          fontSize: '1.05rem',
-          marginBottom: '2rem',
-          maxWidth: '650px',
-          margin: '0 auto 2rem auto'
-        }}>
-          Instant student access to chapter summaries, previous year question papers, formula cheat sheets, and lecture notes uploaded directly by teachers & admins.
-        </p>
 
         {/* Live Search Bar */}
         <div style={{

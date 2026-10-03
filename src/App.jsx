@@ -264,7 +264,7 @@ export default function App() {
           </div>
 
           <div>
-            My Study Zone © {new Date().getFullYear()} • Built for Students & Educators
+            My Study Zone © {new Date().getFullYear()} • Built by jeevan.k
           </div>
         </div>
       </footer>
