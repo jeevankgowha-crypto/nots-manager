@@ -316,6 +316,13 @@ button, input, select, textarea {
   background: var(--surface-card-hover);
 }
 
+.navbar-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
 /* ==========================================================================
    RESPONSIVE BREAKPOINTS
    ========================================================================== */
@@ -336,7 +343,7 @@ button, input, select, textarea {
   }
 
   .navbar-nav {
-    display: none;
+    display: none !important;
     position: absolute;
     top: 100%;
     left: 0;
@@ -345,15 +352,15 @@ button, input, select, textarea {
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
     border-bottom: 1px solid var(--glass-border);
-    padding: 0.75rem 1rem;
+    padding: 0.85rem 1rem;
     flex-direction: column;
-    gap: 0.5rem;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
-    z-index: 99;
+    gap: 0.6rem;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+    z-index: 999;
   }
 
   .navbar-nav.nav-open {
-    display: flex;
+    display: flex !important;
   }
 
   .navbar-nav .btn {

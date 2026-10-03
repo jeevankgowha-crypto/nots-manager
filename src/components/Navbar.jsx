@@ -80,13 +80,8 @@ export default function Navbar({
           </div>
         </div>
 
-        {/* Navigation Tabs — hidden on mobile, shown via className toggle */}
-        <nav className={`navbar-nav ${mobileMenuOpen ? 'nav-open' : ''}`} style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.5rem',
-          flexWrap: 'wrap'
-        }}>
+        {/* Navigation Tabs — hidden on mobile by default, shown when 3-lines menu is toggled */}
+        <nav className={`navbar-nav ${mobileMenuOpen ? 'nav-open' : ''}`}>
           <button 
             className={`btn ${activeTab === 'browse' ? 'btn-primary' : 'btn-secondary'}`}
             onClick={() => handleNavClick('browse')}
