@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import Auth from './Auth';
+import { adminAccessService } from '../services/adminAccessService';
 import { 
   UploadCloud, Plus, Trash2, Edit3, ShieldCheck, FileText, 
-  Eye, Download, Lock, CheckCircle, AlertCircle, Layers, Sparkles, X, PlusCircle, Save, FolderPlus
+  Eye, Download, Lock, CheckCircle, AlertCircle, Layers, Sparkles, X, PlusCircle, Save, FolderPlus, UserCheck, ShieldAlert, LogOut
 } from 'lucide-react';
 
 export default function AdminPortal({
@@ -14,15 +16,52 @@ export default function AdminPortal({
   onDeleteSubject,
   isAdminLoggedIn,
   onLoginAdmin,
+  onLogoutAdmin,
+  currentUser,
   onOpenDetailModal
 }) {
-  // Login Form state
-  const [passwordInput, setPasswordInput] = useState('');
-  const [loginError, setLoginError] = useState('');
+  // Admin Authorization State
+  const [isAuthorized, setIsAuthorized] = useState(false);
+  const [checkingAuth, setCheckingAuth] = useState(true);
+  const [adminEmails, setAdminEmails] = useState([]);
+  const [showAdminManagementModal, setShowAdminManagementModal] = useState(false);
+  const [newAdminEmailInput, setNewAdminEmailInput] = useState('');
 
   // Upload Form state
   const [isUploading, setIsUploading] = useState(false);
   const [showUploadForm, setShowUploadForm] = useState(false);
+
+  // Check admin authorization when user changes or logs in
+  useEffect(() => {
+    async function checkAdminStatus() {
+      setCheckingAuth(true);
+      if (currentUser?.email) {
+        const authorized = await adminAccessService.isUserAdmin(currentUser.email);
+        setIsAuthorized(authorized);
+      } else {
+        setIsAuthorized(false);
+      }
+      const emails = await adminAccessService.getAdminEmails();
+      setAdminEmails(emails);
+      setCheckingAuth(false);
+    }
+    checkAdminStatus();
+  }, [currentUser, isAdminLoggedIn]);
+
+  const handleGrantAdmin = async (e) => {
+    e.preventDefault();
+    if (!newAdminEmailInput.trim()) return;
+    const updated = await adminAccessService.grantAdminAccess(newAdminEmailInput.trim());
+    setAdminEmails(updated);
+    setNewAdminEmailInput('');
+  };
+
+  const handleRevokeAdmin = async (emailToRevoke) => {
+    if (window.confirm(`Are you sure you want to revoke Admin access for ${emailToRevoke}?`)) {
+      const updated = await adminAccessService.revokeAdminAccess(emailToRevoke);
+      setAdminEmails(updated);
+    }
+  };
 
   // Form Fields (New Material)
   const [title, setTitle] = useState('');
@@ -215,71 +254,66 @@ export default function AdminPortal({
     setEditingMaterial(null);
   };
 
-  // IF ADMIN IS NOT LOGGED IN -> SHOW LOGIN PROMPT
-  if (!isAdminLoggedIn) {
+  // IF NOT LOGGED IN -> SHOW AUTH
+  if (!isAdminLoggedIn || !currentUser) {
+    return <Auth onLoginSuccess={onLoginAdmin} />;
+  }
+
+  // IF STILL CHECKING PERMISSIONS
+  if (checkingAuth) {
     return (
-      <div style={{ maxWidth: '480px', margin: '3rem auto' }}>
+      <div style={{ textAlign: 'center', padding: '4rem 1rem' }}>
+        <p style={{ color: 'var(--text-muted)' }}>Verifying admin permissions...</p>
+      </div>
+    );
+  }
+
+  // IF LOGGED IN BUT NOT GRANTED ADMIN ACCESS
+  if (!isAuthorized) {
+    return (
+      <div style={{ maxWidth: '520px', margin: '3rem auto' }}>
         <div className="glass-card animate-fade-in" style={{ padding: '2.5rem 2rem', textAlign: 'center' }}>
           <div style={{
             width: '60px',
             height: '60px',
             borderRadius: 'var(--radius-full)',
-            background: 'var(--accent-light)',
-            color: 'var(--accent-primary)',
+            background: 'rgba(244, 63, 94, 0.1)',
+            color: 'var(--accent-rose)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             margin: '0 auto 1.25rem auto',
-            border: '1px solid rgba(99, 102, 241, 0.3)'
+            border: '1px solid rgba(244, 63, 94, 0.3)'
           }}>
-            <Lock size={28} />
+            <ShieldAlert size={30} />
           </div>
 
-          <h2 style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>Admin Access Portal</h2>
-          <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: '1.75rem' }}>
-            Enter your admin password to upload and manage student study materials.
+          <h2 style={{ fontSize: '1.5rem', marginBottom: '0.5rem', color: 'var(--accent-rose)' }}>Access Denied</h2>
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: '1.25rem' }}>
+            Logged in as <strong>{currentUser.email}</strong>
           </p>
-
-          <form onSubmit={handleLoginSubmit}>
-            <div className="form-group" style={{ textAlign: 'left' }}>
-              <label className="form-label">Admin Password</label>
-              <input
-                type="password"
-                className="form-input"
-                placeholder="Enter password (default: admin123)"
-                value={passwordInput}
-                onChange={(e) => setPasswordInput(e.target.value)}
-              />
-            </div>
-
-            {loginError && (
-              <div style={{ color: 'var(--accent-rose)', fontSize: '0.825rem', marginBottom: '1rem', textAlign: 'left' }}>
-                {loginError}
-              </div>
-            )}
-
-            <button type="submit" className="btn btn-primary" style={{ width: '100%', marginBottom: '1rem' }}>
-              <ShieldCheck size={18} />
-              <span>Login to Admin Dashboard</span>
-            </button>
-          </form>
-
-          <div style={{ borderTop: '1px solid var(--glass-border)', paddingTop: '1.25rem', marginTop: '1rem' }}>
-            <button 
-              onClick={handleDemoQuickLogin}
-              className="btn btn-secondary"
-              style={{ width: '100%', fontSize: '0.85rem' }}
-            >
-              <Sparkles size={16} color="var(--accent-emerald)" />
-              <span>Quick Demo Admin Login (1-Click)</span>
-            </button>
+          <div style={{
+            background: 'var(--bg-tertiary)',
+            padding: '1rem',
+            borderRadius: 'var(--radius-md)',
+            fontSize: '0.85rem',
+            marginBottom: '1.75rem',
+            border: '1px solid var(--glass-border)',
+            textAlign: 'left'
+          }}>
+            This account has not been granted Admin access. An existing administrator must grant access to <strong>{currentUser.email}</strong> through the Admin Users Management panel.
           </div>
+
+          <button onClick={onLogoutAdmin} className="btn btn-secondary" style={{ width: '100%', justifyContent: 'center' }}>
+            <LogOut size={16} />
+            <span>Sign Out of Account</span>
+          </button>
         </div>
       </div>
     );
   }
 
-  // ADMIN IS LOGGED IN -> DASHBOARD
+  // ADMIN IS LOGGED IN & AUTHORIZED -> DASHBOARD
   return (
     <div className="animate-fade-in" style={{ marginTop: '1rem' }}>
       
@@ -310,12 +344,21 @@ export default function AdminPortal({
           <div>
             <h2 style={{ fontSize: '1.4rem' }}>Admin Control Center</h2>
             <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem' }}>
-              Upload new PDF notes, manage subjects, and edit study material categories.
+              Logged in as <strong>{currentUser?.email}</strong>
             </p>
           </div>
         </div>
 
         <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+          <button
+            onClick={() => setShowAdminManagementModal(true)}
+            className="btn btn-secondary"
+            style={{ fontSize: '0.85rem' }}
+          >
+            <UserCheck size={16} color="var(--accent-amber)" />
+            <span>Grant Admin Access ({adminEmails.length})</span>
+          </button>
+
           <button
             onClick={() => setShowSubModal(true)}
             className="btn btn-secondary"
@@ -335,6 +378,109 @@ export default function AdminPortal({
           </button>
         </div>
       </div>
+
+      {/* MODAL / OVERLAY TO MANAGE ADMIN USERS (ROLE-BASED ACCESS) */}
+      {showAdminManagementModal && (
+        <div style={{
+          position: 'fixed',
+          top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(0,0,0,0.75)',
+          zIndex: 1100,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '1rem'
+        }}>
+          <div className="glass-card animate-fade-in" style={{ padding: '2rem', width: '100%', maxWidth: '540px', background: 'var(--bg-secondary)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem' }}>
+              <h3 style={{ fontSize: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <UserCheck size={22} color="var(--accent-amber)" />
+                <span>Admin User Access Manager</span>
+              </h3>
+              <button onClick={() => setShowAdminManagementModal(false)} className="btn-icon">
+                <X size={18} />
+              </button>
+            </div>
+
+            <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginBottom: '1.25rem' }}>
+              Only accounts listed below have permission to view and edit the Admin Portal.
+            </p>
+
+            {/* List of Authorized Admins */}
+            <div style={{ marginBottom: '1.5rem' }}>
+              <label className="form-label" style={{ marginBottom: '0.5rem' }}>Authorized Admin Accounts ({adminEmails.length})</label>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', maxHeight: '180px', overflowY: 'auto', padding: '0.5rem', background: 'var(--bg-primary)', borderRadius: 'var(--radius-sm)' }}>
+                {adminEmails.map(email => (
+                  <div key={email} style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    background: 'var(--bg-tertiary)',
+                    padding: '0.5rem 0.75rem',
+                    borderRadius: 'var(--radius-sm)',
+                    fontSize: '0.85rem',
+                    border: '1px solid var(--glass-border)'
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <UserCheck size={14} color="var(--accent-emerald)" />
+                      <span>{email}</span>
+                      {currentUser?.email?.toLowerCase() === email.toLowerCase() && (
+                        <span style={{ fontSize: '0.7rem', padding: '0.1rem 0.4rem', borderRadius: '4px', background: 'var(--accent-light)', color: 'var(--accent-primary)' }}>You</span>
+                      )}
+                    </div>
+                    {adminEmails.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => handleRevokeAdmin(email)}
+                        style={{
+                          background: 'transparent',
+                          border: 'none',
+                          color: 'var(--accent-rose)',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '0.2rem',
+                          fontSize: '0.75rem'
+                        }}
+                      >
+                        <Trash2 size={13} />
+                        <span>Revoke</span>
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Form to Grant Admin Access */}
+            <form onSubmit={handleGrantAdmin} style={{ borderTop: '1px solid var(--glass-border)', paddingTop: '1.25rem' }}>
+              <div className="form-group">
+                <label className="form-label">Grant Admin Access to Account Email</label>
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                  <input
+                    type="email"
+                    className="form-input"
+                    placeholder="colleague@gmail.com"
+                    value={newAdminEmailInput}
+                    onChange={(e) => setNewAdminEmailInput(e.target.value)}
+                    required
+                  />
+                  <button type="submit" className="btn btn-primary" style={{ whiteSpace: 'nowrap' }}>
+                    <Plus size={16} />
+                    <span>Grant Access</span>
+                  </button>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1rem' }}>
+                <button type="button" onClick={() => setShowAdminManagementModal(false)} className="btn btn-secondary">
+                  Done
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* MODAL / OVERLAY TO MANAGE & DELETE SUBJECTS */}
       {showSubModal && (

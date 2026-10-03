@@ -6,6 +6,9 @@ import BookmarksView from './components/BookmarksView';
 import AdminPortal from './components/AdminPortal';
 import NoteDetailModal from './components/NoteDetailModal';
 import { storageService } from './services/storageService';
+import { supabase } from './supabaseClient';
+import { auth as firebaseAuth, logoutUser as logoutFirebase } from './firebase';
+import { onAuthStateChanged } from 'firebase/auth';
 import { ShieldCheck, Heart, Sparkles, Server } from 'lucide-react';
 
 export default function App() {
@@ -26,10 +29,37 @@ export default function App() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSubject, setSelectedSubject] = useState('All');
 
-  // Admin Auth State
-  const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(() => {
-    return sessionStorage.getItem('eduhub_admin_auth') === 'true';
+  // Auth State (Supabase + Firebase + Demo)
+  const [userSession, setUserSession] = useState(null);
+  const [firebaseUser, setFirebaseUser] = useState(null);
+  const [demoUser, setDemoUser] = useState(() => {
+    const saved = localStorage.getItem('eduhub_demo_user');
+    return saved ? JSON.parse(saved) : null;
   });
+
+  useEffect(() => {
+    // Listen for Supabase auth state changes
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUserSession(session);
+    }).catch(() => {});
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUserSession(session);
+    });
+
+    // Listen for Firebase auth state changes
+    const unsubscribeFirebase = onAuthStateChanged(firebaseAuth, (user) => {
+      setFirebaseUser(user);
+    });
+
+    return () => {
+      subscription.unsubscribe();
+      unsubscribeFirebase();
+    };
+  }, []);
+
+  const currentUser = firebaseUser || userSession?.user || demoUser;
+  const isAdminLoggedIn = !!currentUser;
 
   // Modal State
   const [selectedMaterialModal, setSelectedMaterialModal] = useState(null);
@@ -55,15 +85,21 @@ export default function App() {
     setTheme(prev => (prev === 'dark' ? 'light' : 'dark'));
   };
 
-  const handleAdminLogin = () => {
-    setIsAdminLoggedIn(true);
-    sessionStorage.setItem('eduhub_admin_auth', 'true');
+  const handleAdminLogin = (user) => {
+    if (user) {
+      setDemoUser(user);
+      localStorage.setItem('eduhub_demo_user', JSON.stringify(user));
+    }
     setActiveTab('admin');
   };
 
-  const handleAdminLogout = () => {
-    setIsAdminLoggedIn(false);
-    sessionStorage.removeItem('eduhub_admin_auth');
+  const handleAdminLogout = async () => {
+    await logoutFirebase();
+    await supabase.auth.signOut();
+    setUserSession(null);
+    setFirebaseUser(null);
+    setDemoUser(null);
+    localStorage.removeItem('eduhub_demo_user');
     setActiveTab('browse');
   };
 
@@ -193,6 +229,8 @@ export default function App() {
             onDeleteSubject={handleDeleteSubject}
             isAdminLoggedIn={isAdminLoggedIn}
             onLoginAdmin={handleAdminLogin}
+            onLogoutAdmin={handleAdminLogout}
+            currentUser={currentUser}
             onOpenDetailModal={handleOpenDetailModal}
           />
         )}
